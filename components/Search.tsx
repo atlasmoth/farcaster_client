@@ -2,29 +2,26 @@ import {
   StatusBar,
   View,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   Text,
-  ActivityIndicator,
   FlatList,
+  RefreshControl,
 } from "react-native";
 import {
   colors,
-  sharedContainerStyles,
   shuffleArray,
   Token,
   getPoaps,
   getGqlQuery,
   AIRSTACK_URL,
 } from "../utils/sharedStyles";
-import { Feather } from "@expo/vector-icons";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { blurhash } from "./CastListItem";
 
-export default function Search() {
+export default function Search({ navigation }) {
   const [cursor, setCursor] = useState<{
     erc721: null | string;
     poap: null | string;
@@ -34,34 +31,34 @@ export default function Search() {
   });
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token>([]);
-  const [searchText, setSearchText] = useState("");
-  const [tempText, setTempText] = useState("");
-  const inputRef = useRef<any>();
+  const [counter, setCounter] = useState(0);
 
   useEffect(() => {
     const getDataFunc = async () => {
-      if (searchText.length < 1) return;
-      const poapsData = await axios.post(
-        AIRSTACK_URL,
-        getPoaps({ address: searchText, cursor: cursor.poap })
-      );
-
+      setLoading(true);
       const ercData = await axios.post(
         AIRSTACK_URL,
         getGqlQuery({
-          address: searchText,
           erc721Cursor: cursor.erc721,
         })
       );
+      const poapsData = await axios.post(
+        AIRSTACK_URL,
+        getPoaps({ cursor: cursor.poap })
+      );
 
       let tempArray = [
-        ...(ercData.data?.data?.erc721?.data || []),
-        ...(poapsData?.data?.data?.Poaps?.Poap || []),
+        ...(ercData.data?.data?.Tokens?.Token || []).filter(
+          (t) => t?.logo?.medium && t?.name
+        ),
+        ...(poapsData?.data?.data?.Poaps?.Poap || []).filter(
+          (t) => t?.poapEvent?.contentValue?.image?.medium
+        ),
       ];
       setTokens((t: Token) => [...t, ...shuffleArray(tempArray)]);
       setCursor((s) => ({
         ...s,
-        erc721: ercData.data.data.erc721.pageInfo.nextCursor,
+        erc721: ercData.data.data.Tokens.pageInfo.nextCursor,
         poap: poapsData.data.data.Poaps.pageInfo.nextCursor,
       }));
     };
@@ -70,155 +67,45 @@ export default function Search() {
       .finally(() => {
         setLoading(false);
       });
-    return () => {
-      setTokens([]);
-      setCursor({
-        erc721: "",
-        poap: "",
-      });
-    };
-  }, [searchText, setSearchText, setTempText, setTokens, setCursor]);
+  }, [setTokens, setCursor, counter]);
 
   return (
-    <View style={[sharedContainerStyles.container]}>
+    <>
       <StatusBar
         barStyle="light-content"
         backgroundColor={colors.bgWhite}
         animated={false}
       />
-      <View
-        style={[
-          searchStyles.flexRow,
-          { marginHorizontal: 12, marginVertical: 10, marginTop: 30 },
-        ]}
-      >
-        <View style={[searchStyles.flexRow, { position: "relative", flex: 1 }]}>
-          <Feather
-            name="search"
-            size={24}
-            color={colors.grey}
-            style={[{ marginLeft: 10 }]}
-          />
-          <TextInput
-            ref={inputRef}
-            placeholder="Enter address"
-            placeholderTextColor={colors.grey}
-            value={tempText}
-            onChangeText={setTempText}
-            style={[
-              {
-                position: "absolute",
-                paddingLeft: 45,
-                paddingRight: 10,
-                left: 0,
-                right: 0,
-                zIndex: 10,
-                borderColor: colors.bgWhiteTransparent,
-                borderRadius: 12,
-                paddingVertical: 8,
-                borderWidth: 1,
-                color: colors.black,
-                fontSize: 14,
-                lineHeight: 20,
-                fontFamily: "Chirp_Bold",
-                fontWeight: "500",
-              },
-            ]}
-          />
-        </View>
-        <TouchableOpacity
-          onPress={() => {
-            if (tempText.length < 1) return;
-            setLoading(true);
-            setCursor({ poap: "", erc721: "" });
-            setTokens([]);
-            setSearchText(tempText);
-          }}
-        >
-          <Text
-            style={[
-              {
-                marginHorizontal: 10,
-                color: colors.black,
-                fontSize: 16,
-                lineHeight: 24,
-                fontWeight: "700",
-                paddingVertical: 10,
-                paddingHorizontal: 10,
-                backgroundColor: "#efefef",
-                borderRadius: 12,
-              },
-            ]}
-          >
-            Search
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View style={[{ marginTop: 5 }]}></View>
-      {loading && (
-        <View>
-          <ActivityIndicator size="small" color={colors.grey} />
-        </View>
-      )}
+
       <FlatList
+        refreshControl={<RefreshControl refreshing={loading} />}
         onEndReached={async () => {
           if (loading) {
             return;
           }
-          try {
-            setLoading(true);
-            let tempArray = [];
-            let tempCursor = { ...cursor };
-            if (cursor.poap.length > 0) {
-              const poapsData = await axios.post(
-                AIRSTACK_URL,
-                getPoaps({ address: searchText, cursor: cursor.poap })
-              );
-              tempArray = tempArray.concat(
-                poapsData?.data?.data?.Poaps?.Poap || []
-              );
-              tempCursor.poap = poapsData.data.data.Poaps.pageInfo.nextCursor;
-            }
-            if (cursor.erc721.length > 0) {
-              const ercData = await axios.post(
-                AIRSTACK_URL,
-                getGqlQuery({
-                  address: searchText,
-                  erc721Cursor: cursor.erc721,
-                })
-              );
-
-              tempArray = tempArray.concat(
-                ercData.data?.data?.erc721?.data || []
-              );
-              tempCursor.erc721 = ercData.data.data.erc721.pageInfo.nextCursor;
-            }
-            setCursor((s) => ({
-              ...s,
-              erc721: tempCursor.erc721,
-              poap: tempCursor.poap,
-            }));
-            setTokens((t: Token) => [...t, ...shuffleArray(tempArray)]);
-          } catch (error) {
-            console.log(error);
-          } finally {
-            setLoading(false);
-          }
+          setCounter((t) => t + 1);
         }}
-        contentContainerStyle={[{ paddingBottom: 100 }]}
-        nestedScrollEnabled={true}
+        style={[{ paddingBottom: 100, backgroundColor: colors.bgWhite }]}
+        contentContainerStyle={[{ flexGrow: 1 }]}
         data={tokens}
         renderItem={({ item }) => {
-          return <MemoizedSearchItem item={item} />;
+          return <MemoizedSearchItem item={item} navigation={navigation} />;
         }}
       />
-    </View>
+    </>
   );
 }
 
-function SearchItem({ item }: { item: Token[0] }) {
+function SearchItem({ item, navigation }: { item: Token[0]; navigation: any }) {
   return (
     <TouchableOpacity
+      onPress={() => {
+        navigation.navigate("UserCasts", {
+          title: item?.name || item?.poapEvent?.eventName,
+          address: item.address,
+          eventId: item.eventId,
+        });
+      }}
       style={[
         {
           marginHorizontal: 12,
@@ -246,7 +133,7 @@ function SearchItem({ item }: { item: Token[0] }) {
         source={{
           uri: (item.poapEvent
             ? item?.poapEvent?.contentValue?.image?.medium
-            : item?.token?.logo?.medium) as string,
+            : item?.logo?.medium) as string,
         }}
         placeholder={blurhash}
         contentFit="cover"
@@ -265,7 +152,7 @@ function SearchItem({ item }: { item: Token[0] }) {
             },
           ]}
         >
-          {item?.token?.name || item.poapEvent.eventName}
+          {item?.name || item?.poapEvent?.eventName}
         </Text>
         <Text
           style={[
@@ -277,7 +164,7 @@ function SearchItem({ item }: { item: Token[0] }) {
             },
           ]}
         >
-          {item?.token?.name ? "NFT" : "POAP"}
+          {!item.eventId ? "NFT" : "POAP"}
         </Text>
         <Text
           style={[
@@ -289,8 +176,8 @@ function SearchItem({ item }: { item: Token[0] }) {
             },
           ]}
         >
-          {item?.token?.name ? (
-            <Text>Token ID: {item.tokenAddress}</Text>
+          {!item.eventId ? (
+            <Text>Address: {item.address}</Text>
           ) : (
             <Text>Event ID: {item.eventId}</Text>
           )}

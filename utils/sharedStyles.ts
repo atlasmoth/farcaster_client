@@ -26,108 +26,159 @@ export function shuffleArray<T>(array: T[]) {
 
 export const AIRSTACK_URL = "https://api.airstack.xyz/gql";
 
-export function getPoaps({
-  address,
-  cursor,
-}: {
-  address: string;
-  cursor: string;
-}) {
+export function getPoaps({ cursor }: { cursor: string }) {
   const queryObj = {
-    query: `query GetAllPOAPs {
-        Poaps(input: {filter: {owner: {_in: ["${address}"]}}, blockchain: ALL,cursor : "${cursor}",order: {createdAtBlockNumber : DESC},limit: 200}) {
-          Poap {
-            id
-            eventId
-            poapEvent {
-              eventName
-              eventURL
-              startDate
-              endDate
-              country
-              city
-              contentValue {
-                image {
-                  extraSmall
-                  large
-                  medium
-                  original
-                  small
-                }
-              }
-            }
-            owner {
-              identity
-              primaryDomain {
-                name
-              }
-              addresses
-            }
-          }
-          pageInfo {
-            hasNextPage
-            hasPrevPage
-            nextCursor
-            prevCursor
-          }
-              
+    query: `
+    query GetAllPOAPs {
+      Poaps(
+        input: {
+          filter: { createdAtBlockNumber: { _gt: 0 } }
+          blockchain: ALL
+          order: { createdAtBlockNumber: DESC }
+          limit: 200
+          cursor : "${cursor}"
         }
-      }`,
+      ) {
+        Poap {
+          id
+          eventId
+          poapEvent {
+            eventName
+            eventURL
+            startDate
+            endDate
+            country
+            city
+            contentValue {
+              image {
+                extraSmall
+                large
+                medium
+                original
+                small
+              }
+            }
+          }
+          owner {
+            identity
+            primaryDomain {
+              name
+            }
+            addresses
+          }
+        }
+        pageInfo {
+          hasNextPage
+          hasPrevPage
+          nextCursor
+          prevCursor
+        }
+      }
+    }
+    `,
   };
   return queryObj;
 }
-export function getGqlQuery({
-  address,
-  erc721Cursor,
-}: {
-  address: string;
-  erc721Cursor?: string;
-  poapCursor?: string;
-}) {
+export function getGqlQuery({ erc721Cursor }: { erc721Cursor?: string }) {
   const queryObj = {
     query: `
-    query token {
-        erc721: TokenBalances(
-          input: {filter: {owner: {_in: ["${address}"]}, tokenType: {_in: [ERC721]}, tokenAddress: {_nin: ["0x22C1f6050E56d2876009903609a2cC3fEf83B415"]}}, limit: 200,
-          cursor:"${erc721Cursor}", order: {lastUpdatedTimestamp: DESC},
-          blockchain: ethereum}
-        ) {
-          data: TokenBalance {
-            amount
-            formattedAmount
-            chainId
-            id
-            tokenAddress
-            tokenId
-            tokenType
-            token {
-              name
-              symbol
-              baseURI
-            logo {
-              large
-              external
-              medium
-              original
-              small
-            }
-            }
-            
-            
+    query FetchAllNFTs {
+      Tokens(
+        input: {
+          blockchain: ethereum
+          limit: 200
+          cursor : "${erc721Cursor}"
+          filter: {
+            type: { _in: ERC721 }
+            isSpam: { _eq: false }
+            name: { _gt: " " }
           }
-          pageInfo {
-            hasNextPage
-            hasPrevPage
-            nextCursor
-            prevCursor
-          }
+          order: { symbol: DESC }
         }
-        
+      ) {
+        Token {
+          symbol
+          address
+          baseURI
+          blockchain
+          chainId
+          decimals
+          id
+          isSpam
+          logo {
+            medium
+          }
+          name
+        }
+        pageInfo {
+          hasNextPage
+          hasPrevPage
+          nextCursor
+          prevCursor
+        }
       }
+    }
+    
       `,
   };
   return queryObj;
 }
+export function getNftUsers({ address }: { address: string }) {
+  const queryObj = {
+    query: `query MyQuery {
+    TokenBalances(
+      input: {
+        filter: {
+          tokenAddress: { _eq: "${address}" }
+        }
+        blockchain: ethereum
+        limit: 200
+        order: { lastUpdatedTimestamp: DESC }
+      }
+    ) {
+      TokenBalance {
+        owner {
+          socials(
+            input: { filter: { _and: [{ dappName: { _eq: farcaster } }] } }
+          ) {
+            profileName
+            userId
+          }
+        }
+      }
+    }
+  }
+  `,
+  };
+  return queryObj;
+}
+export function getPoapUsers({ address }: { address: string }) {
+  const queryObj = {
+    query: `query MyQuery {
+      Poaps(
+        input: {
+          filter: { eventId: { _eq: "${address}" }}
+          blockchain: ALL
+          limit: 200
+          order: {createdAtBlockNumber : DESC  }
+        }
+      ) {
+        Poap {
+          owner {
+            socials(input: { filter: { dappName: { _eq: farcaster } } }) {
+              profileName
+              userId
+            }
+          }
+        }
+      }
+    }
+    
+  `,
+  };
+  return queryObj;
+}
+
 export interface PoapEvent {
   eventName: string;
   eventURL: string;
@@ -169,18 +220,24 @@ export interface Erc721 {
   tokenAddress: string;
   tokenId: string;
   tokenType: string;
-  token: {
-    name: string;
-    symbol: string;
-    baseURI: string;
-    logo: {
-      large: string;
-      external: string;
-      medium: string;
-      original: string;
-      small: string;
-    };
+  address: string;
+  name: string;
+  symbol: string;
+  baseURI: string;
+  logo: {
+    large: string;
+    external: string;
+    medium: string;
+    original: string;
+    small: string;
   };
+}
+export function cleanHashtag(input: string) {
+  const cleanedString = input?.replaceAll(" ", "");
+
+  const truncatedString = cleanedString?.slice(0, 25);
+
+  return `${truncatedString}${cleanedString?.length > 25 ? "..." : ""}`;
 }
 
 export type Token = (Poap & Erc721)[];

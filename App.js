@@ -6,6 +6,7 @@ import Caster from "./screens/Cast";
 import { colors } from "./utils/sharedStyles";
 import Casts from "./components/Casts";
 import Search from "./components/Search";
+import UserCasts from "./components/UserCasts";
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,8 @@ export default function App() {
             headerTitleStyle: {
               color: colors.black,
               fontFamily: "Chirp_Bold",
+              fontSize: 16,
+              lineHeight: 20,
             },
           }}
         />
@@ -38,6 +41,20 @@ export default function App() {
             headerTitleStyle: {
               color: colors.black,
               fontFamily: "Chirp_Bold",
+              fontSize: 16,
+              lineHeight: 20,
+            },
+          }}
+        />
+        <Stack.Screen
+          name="UserCasts"
+          component={UserCasts}
+          options={{
+            headerTitleStyle: {
+              color: colors.black,
+              fontFamily: "Chirp_Bold",
+              fontSize: 16,
+              lineHeight: 20,
             },
           }}
         />
@@ -45,9 +62,12 @@ export default function App() {
           name="Search"
           component={Search}
           options={{
+            headerTitle: "Select NFT or POAP",
             headerTitleStyle: {
               color: colors.black,
               fontFamily: "Chirp_Bold",
+              fontSize: 16,
+              lineHeight: 20,
             },
           }}
         />
