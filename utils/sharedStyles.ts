@@ -35,7 +35,7 @@ export function getPoaps({ cursor }: { cursor: string }) {
           filter: { createdAtBlockNumber: { _gt: 0 } }
           blockchain: ALL
           order: { createdAtBlockNumber: DESC }
-          limit: 200
+          limit: 100
           cursor : "${cursor}"
         }
       ) {
@@ -86,7 +86,7 @@ export function getGqlQuery({ erc721Cursor }: { erc721Cursor?: string }) {
       Tokens(
         input: {
           blockchain: ethereum
-          limit: 200
+          limit: 100
           cursor : "${erc721Cursor}"
           filter: {
             type: { _in: ERC721 }
@@ -132,7 +132,7 @@ export function getNftUsers({ address }: { address: string }) {
           tokenAddress: { _eq: "${address}" }
         }
         blockchain: ethereum
-        limit: 200
+        limit: 100
         order: { lastUpdatedTimestamp: DESC }
       }
     ) {
@@ -159,7 +159,7 @@ export function getPoapUsers({ address }: { address: string }) {
         input: {
           filter: { eventId: { _eq: "${address}" }}
           blockchain: ALL
-          limit: 200
+          limit: 100
           order: {createdAtBlockNumber : DESC  }
         }
       ) {

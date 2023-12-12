@@ -6,10 +6,11 @@ import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Cast } from "./castTypes";
 import { formatDistance } from "date-fns";
+import { memo } from "react";
 
 export const blurhash = "L5KUl|IA0Kay~WWBWVj]00ayaeWC";
 
-export default function CastListItem({ data }: { data: Cast }) {
+function NoMemoCastListItem({ data }: { data: Cast }) {
   const navigation = useNavigation() as unknown as any;
 
   return (
@@ -177,7 +178,7 @@ export default function CastListItem({ data }: { data: Cast }) {
   );
 }
 
-export function MainListItem({ data }: { data: Cast }) {
+function NoMemoMainListItem({ data }: { data: Cast }) {
   return (
     <View style={[castListItemStyles.itemContainer, { marginBottom: 20 }]}>
       <View style={[castListItemStyles.splitArticle]}>
@@ -312,7 +313,7 @@ export function MainListItem({ data }: { data: Cast }) {
     </View>
   );
 }
-export function ReplyListItem({ data }: { data: Record<any, any> }) {
+function NoMemoReplyListItem({ data }: { data: Record<any, any> }) {
   return (
     <TouchableOpacity style={[castListItemStyles.itemContainer]}>
       <View style={[castListItemStyles.splitArticle]}>
@@ -458,6 +459,11 @@ export function Gallery({ urls }: { urls: any[] }): JSX.Element {
     </View>
   );
 }
+
+export const MainListItem = memo(NoMemoMainListItem);
+export const ReplyListItem = memo(NoMemoReplyListItem);
+
+export const CastListItem = memo(NoMemoCastListItem);
 
 const castListItemStyles = StyleSheet.create({
   avatar: { width: 36, height: 36, borderRadius: 36, objectFit: "cover" },

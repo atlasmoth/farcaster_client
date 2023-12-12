@@ -16,7 +16,7 @@ import {
   AIRSTACK_URL,
   removeDuplicates,
 } from "../utils/sharedStyles";
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
 import { Image } from "expo-image";
@@ -72,6 +72,10 @@ export default function Search({ navigation }) {
       });
   }, [setTokens, setCursor, counter]);
 
+  const FlatItem = useCallback(({ item }) => {
+    return <MemoizedSearchItem item={item} navigation={navigation} />;
+  }, []);
+
   return (
     <>
       <StatusBar
@@ -81,6 +85,7 @@ export default function Search({ navigation }) {
       />
 
       <FlatList
+        keyExtractor={(item) => item.address || item.eventId}
         refreshControl={<RefreshControl refreshing={loading} />}
         onEndReached={async () => {
           if (loading) {
@@ -91,9 +96,7 @@ export default function Search({ navigation }) {
         style={[{ paddingBottom: 100, backgroundColor: colors.bgWhite }]}
         contentContainerStyle={[{ flexGrow: 1 }]}
         data={tokens}
-        renderItem={({ item }) => {
-          return <MemoizedSearchItem item={item} navigation={navigation} />;
-        }}
+        renderItem={FlatItem}
       />
     </>
   );

@@ -6,7 +6,7 @@ import {
   Text,
   RefreshControl,
 } from "react-native";
-import CastListItem from "./CastListItem";
+import { CastListItem } from "./CastListItem";
 import { colors, sharedContainerStyles } from "../utils/sharedStyles";
 import { Ionicons } from "@expo/vector-icons";
 import { Cast } from "./castTypes";
@@ -78,6 +78,9 @@ export default function Casts({ navigation }) {
     getCasts();
   }, [counter, setCounter, setData, setCursor]);
 
+  const FlatItem = React.useCallback(({ item }) => {
+    return <CastListItem data={item} />;
+  }, []);
   return (
     <>
       <StatusBar
@@ -86,6 +89,7 @@ export default function Casts({ navigation }) {
         animated={false}
       />
       <FlatList
+        keyExtractor={(item) => item.hash}
         refreshControl={<RefreshControl refreshing={loading} />}
         onEndReached={() => {
           if (loading) {
@@ -94,7 +98,7 @@ export default function Casts({ navigation }) {
           setCounter((t) => t + 1);
         }}
         data={data}
-        renderItem={(d) => <CastListItem data={d.item} />}
+        renderItem={FlatItem}
         contentContainerStyle={[sharedContainerStyles.container]}
       />
     </>
