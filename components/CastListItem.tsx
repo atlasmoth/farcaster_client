@@ -1,26 +1,22 @@
-import {
-  View,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  ImageBackground,
-} from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { colors } from "./../utils/sharedStyles";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { Cast } from "./castTypes";
+import { formatDistance } from "date-fns";
 
 export const blurhash = "L5KUl|IA0Kay~WWBWVj]00ayaeWC";
 
-export default function CastListItem({}: {}) {
+export default function CastListItem({ data }: { data: Cast }) {
   const navigation = useNavigation() as unknown as any;
 
   return (
     <TouchableOpacity
       style={[castListItemStyles.itemContainer]}
       onPress={() => {
-        navigation.navigate("Cast 🔊");
+        navigation.navigate("Cast 🔊", data);
       }}
     >
       <View style={[castListItemStyles.splitArticle]}>
@@ -36,22 +32,26 @@ export default function CastListItem({}: {}) {
         >
           <Image
             style={[castListItemStyles.avatar]}
-            source="https://picsum.photos/seed/696/3000/2000"
+            source={data.author?.pfp_url}
             placeholder={blurhash}
             contentFit="cover"
             transition={1000}
           />
-          <View
-            style={[
-              {
-                marginTop: 10,
-                marginBottom: 10,
-                backgroundColor: "rgb(229,229,229)",
-                width: 2,
-                flexGrow: 1,
-              },
-            ]}
-          ></View>
+          {data.mentioned_profiles?.length > 0 ? (
+            <View
+              style={[
+                {
+                  marginTop: 10,
+                  marginBottom: 10,
+                  backgroundColor: "rgb(229,229,229)",
+                  width: 2,
+                  flexGrow: 1,
+                },
+              ]}
+            ></View>
+          ) : (
+            <></>
+          )}
         </View>
         <View style={[{ flex: 1 }]}>
           <View
@@ -71,7 +71,7 @@ export default function CastListItem({}: {}) {
                   },
                 ]}
               >
-                Macrocephalopod
+                {data?.author?.display_name}
               </Text>
               <Text
                 style={[
@@ -83,7 +83,7 @@ export default function CastListItem({}: {}) {
                   },
                 ]}
               >
-                @macroboi
+                @{data?.author?.username}
               </Text>
             </View>
             <Text
@@ -96,7 +96,9 @@ export default function CastListItem({}: {}) {
                 },
               ]}
             >
-              30m
+              {formatDistance(new Date(data.timestamp), new Date(), {
+                addSuffix: true,
+              })}
             </Text>
           </View>
           <Text
@@ -107,15 +109,13 @@ export default function CastListItem({}: {}) {
                 color: colors.black,
                 fontSize: 14,
                 lineHeight: 20,
+                fontWeight: "500",
               },
             ]}
           >
-            by The people of northern Ghana Serving temperature mostly hot Main
-            ingredients beans and rice Media: Waakye Waakye (/ˈwɑːtʃeɪ/
-            WAH-chay)[2] is a Ghanaian dish of cooked rice and beans, commonly
-            eaten for breakfast or lunch.
+            {data.text}
           </Text>
-          <Gallery />
+          <Gallery urls={data.embeds || []} />
         </View>
       </View>
       <View style={[castListItemStyles.flexRow]}>
@@ -126,27 +126,33 @@ export default function CastListItem({}: {}) {
             castListItemStyles.centerView,
           ]}
         >
-          <Image
-            style={[castListItemStyles.thumbnail]}
-            source="https://picsum.photos/seed/696/3000/2000"
-            placeholder={blurhash}
-            contentFit="cover"
-            transition={1000}
-          />
-          <Image
-            style={[
-              castListItemStyles.thumbnail,
-              castListItemStyles.secondThumbnail,
-            ]}
-            source="https://picsum.photos/seed/696/3000/2000"
-            placeholder={blurhash}
-            contentFit="cover"
-            transition={1000}
-          />
+          {data.mentioned_profiles?.length > 0 &&
+            data.mentioned_profiles[0] && (
+              <Image
+                style={[castListItemStyles.thumbnail]}
+                source={data.mentioned_profiles[0]?.pfp_url}
+                placeholder={blurhash}
+                contentFit="cover"
+                transition={1000}
+              />
+            )}
+          {data.mentioned_profiles?.length > 1 &&
+            data.mentioned_profiles[1] && (
+              <Image
+                style={[
+                  castListItemStyles.thumbnail,
+                  castListItemStyles.secondThumbnail,
+                ]}
+                source={data.mentioned_profiles[1]?.pfp_url}
+                placeholder={blurhash}
+                contentFit="cover"
+                transition={1000}
+              />
+            )}
         </View>
         <Feather name="message-circle" size={20} color={colors.grey} />
         <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
-          46
+          {data.replies?.count}
         </Text>
         <AntDesign
           name="retweet"
@@ -155,7 +161,7 @@ export default function CastListItem({}: {}) {
           style={[{ marginLeft: 10 }]}
         />
         <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
-          20
+          {data.reactions?.recasts?.length}
         </Text>
         <AntDesign
           name="hearto"
@@ -164,14 +170,14 @@ export default function CastListItem({}: {}) {
           style={[{ marginLeft: 10 }]}
         />
         <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
-          15
+          {data.reactions?.likes?.length}
         </Text>
       </View>
     </TouchableOpacity>
   );
 }
 
-export function MainListItem({}: {}) {
+export function MainListItem({ data }: { data: Cast }) {
   return (
     <View style={[castListItemStyles.itemContainer, { marginBottom: 20 }]}>
       <View style={[castListItemStyles.splitArticle]}>
@@ -193,7 +199,7 @@ export function MainListItem({}: {}) {
             >
               <Image
                 style={[castListItemStyles.avatar]}
-                source="https://picsum.photos/seed/696/3000/2000"
+                source={data.author?.pfp_url}
                 placeholder={blurhash}
                 contentFit="cover"
                 transition={1000}
@@ -210,7 +216,7 @@ export function MainListItem({}: {}) {
                   },
                 ]}
               >
-                Macrocephalopod
+                {data.author.display_name}
               </Text>
               <Text
                 style={[
@@ -222,7 +228,7 @@ export function MainListItem({}: {}) {
                   },
                 ]}
               >
-                @macroboi
+                @{data.author.username}
               </Text>
             </View>
             <Text
@@ -235,7 +241,13 @@ export function MainListItem({}: {}) {
                 },
               ]}
             >
-              30m
+              {formatDistance(
+                new Date(data.timestamp || new Date()),
+                new Date(),
+                {
+                  addSuffix: true,
+                }
+              )}
             </Text>
           </View>
           <Text
@@ -246,22 +258,20 @@ export function MainListItem({}: {}) {
                 color: colors.black,
                 fontSize: 14,
                 lineHeight: 20,
+                fontWeight: "500",
               },
             ]}
           >
-            by The people of northern Ghana Serving temperature mostly hot Main
-            ingredients beans and rice Media: Waakye Waakye (/ˈwɑːtʃeɪ/
-            WAH-chay)[2] is a Ghanaian dish of cooked rice and beans, commonly
-            eaten for breakfast or lunch.[3]
+            {data.text}
           </Text>
-          <Gallery />
+          <Gallery urls={data.embeds} />
         </View>
       </View>
       <View style={[castListItemStyles.flexRow]}>
         <View style={[castListItemStyles.flexRow, { flex: 1 }]}>
           <Feather name="message-circle" size={20} color={colors.grey} />
           <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
-            46
+            {data.replies.count}
           </Text>
           <AntDesign
             name="retweet"
@@ -270,7 +280,7 @@ export function MainListItem({}: {}) {
             style={[{ marginLeft: 10 }]}
           />
           <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
-            20
+            {data.reactions.likes.length}
           </Text>
           <AntDesign
             name="hearto"
@@ -279,23 +289,30 @@ export function MainListItem({}: {}) {
             style={[{ marginLeft: 10 }]}
           />
           <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
-            15
+            {data.reactions.recasts.length}
           </Text>
         </View>
         <View style={[castListItemStyles.flexRow, { flexShrink: 0 }]}>
           <Text style={[castListItemStyles.lightSubText, { marginRight: 5 }]}>
-            10:18 PM
+            {new Intl.DateTimeFormat("en-NG", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }).format(new Date(data.timestamp))}
           </Text>
 
           <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
-            Dec 4, 2023
+            {new Intl.DateTimeFormat("en-NG", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }).format(new Date(data.timestamp))}
           </Text>
         </View>
       </View>
     </View>
   );
 }
-export function ReplyListItem() {
+export function ReplyListItem({ data }: { data: Record<any, any> }) {
   return (
     <TouchableOpacity style={[castListItemStyles.itemContainer]}>
       <View style={[castListItemStyles.splitArticle]}>
@@ -311,7 +328,7 @@ export function ReplyListItem() {
         >
           <Image
             style={[castListItemStyles.avatar]}
-            source="https://picsum.photos/seed/696/3000/2000"
+            source={data.author.pfp.url}
             placeholder={blurhash}
             contentFit="cover"
             transition={1000}
@@ -335,7 +352,7 @@ export function ReplyListItem() {
                   },
                 ]}
               >
-                Macrocephalopod
+                {data.author.displayName}
               </Text>
               <Text
                 style={[
@@ -347,7 +364,7 @@ export function ReplyListItem() {
                   },
                 ]}
               >
-                @macroboi
+                @{data.author.username}
               </Text>
             </View>
             <Text
@@ -360,7 +377,13 @@ export function ReplyListItem() {
                 },
               ]}
             >
-              30m
+              {formatDistance(
+                new Date(data.timestamp || new Date()),
+                new Date(),
+                {
+                  addSuffix: true,
+                }
+              )}
             </Text>
           </View>
           <Text
@@ -374,15 +397,13 @@ export function ReplyListItem() {
               },
             ]}
           >
-            by The people of northern Ghana Serving temperature mostly hot Main
-            ingredients beans and rice Media: Waakye Waakye (/ˈwɑːtʃeɪ/
-            WAH-chay)[2] is a Ghanaian dish of cooked rice and beans, commonly
-            eaten for breakfast or lunch
+            {data.text}
           </Text>
+          <Gallery urls={data.embeds || []} />
           <View style={[castListItemStyles.flexRow, { flex: 1 }]}>
             <Feather name="message-circle" size={20} color={colors.grey} />
             <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
-              46
+              {data.replies.count}
             </Text>
             <AntDesign
               name="retweet"
@@ -391,7 +412,7 @@ export function ReplyListItem() {
               style={[{ marginLeft: 10 }]}
             />
             <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
-              20
+              {data.recasts.count}
             </Text>
             <AntDesign
               name="hearto"
@@ -400,7 +421,7 @@ export function ReplyListItem() {
               style={[{ marginLeft: 10 }]}
             />
             <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
-              15
+              {data.reactions.count}
             </Text>
           </View>
         </View>
@@ -408,7 +429,7 @@ export function ReplyListItem() {
     </TouchableOpacity>
   );
 }
-export function Gallery(): JSX.Element {
+export function Gallery({ urls }: { urls: any[] }): JSX.Element {
   return (
     <View
       style={[
@@ -419,22 +440,21 @@ export function Gallery(): JSX.Element {
         },
       ]}
     >
-      <ImageBackground
-        source={{ uri: "https://picsum.photos/seed/696/3000/2000" }}
-        style={[castListItemStyles.galleryItem, { marginRight: 10 }]}
-      />
-      <ImageBackground
-        source={{ uri: "https://picsum.photos/seed/696/3000/2000" }}
-        style={[castListItemStyles.galleryItem]}
-      />
-      <ImageBackground
-        source={{ uri: "https://picsum.photos/seed/696/3000/2000" }}
-        style={[castListItemStyles.galleryItem]}
-      />
-      {/* <ImageBackground
-        source={{ uri: "https://picsum.photos/seed/696/3000/2000" }}
-        style={[castListItemStyles.galleryItem]}
-      /> */}
+      {urls.map((url, index, arr) => {
+        return (
+          <Image
+            style={[
+              castListItemStyles.galleryItem,
+              index % 2 === 0 && arr[index + 1] ? { marginRight: 10 } : {},
+            ]}
+            source={{ uri: url.url }}
+            placeholder={blurhash}
+            contentFit="cover"
+            transition={1000}
+            key={url + index}
+          />
+        );
+      })}
     </View>
   );
 }

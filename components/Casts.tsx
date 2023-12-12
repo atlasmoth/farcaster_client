@@ -1,10 +1,22 @@
 import * as React from "react";
-import { FlatList, StatusBar, TouchableOpacity, Text } from "react-native";
+import {
+  FlatList,
+  StatusBar,
+  TouchableOpacity,
+  Text,
+  RefreshControl,
+} from "react-native";
 import CastListItem from "./CastListItem";
 import { colors, sharedContainerStyles } from "../utils/sharedStyles";
 import { Ionicons } from "@expo/vector-icons";
+import { Cast } from "./castTypes";
+import axios from "axios";
 
 export default function Casts({ navigation }) {
+  const [data, setData] = React.useState<Cast[]>([]);
+  const [counter, setCounter] = React.useState(0);
+  const [cursor, setCursor] = React.useState();
+  const [loading, setLoading] = React.useState(true);
   React.useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -39,6 +51,33 @@ export default function Casts({ navigation }) {
       ),
     });
   }, [navigation]);
+  React.useEffect(() => {
+    const getCasts = async () => {
+      try {
+        setLoading(true);
+        const neynarUrl = new URL(`https://api.neynar.com/v2/farcaster/feed`);
+        neynarUrl.searchParams.append("feed_type", "filter");
+        neynarUrl.searchParams.append("filter_type", "global_trending");
+        neynarUrl.searchParams.append("with_recasts", "true");
+        neynarUrl.searchParams.append("limit", "100");
+        if (cursor) {
+          neynarUrl.searchParams.append("cursor", cursor as string);
+        }
+        const results = await axios.get(neynarUrl.href, {
+          headers: { Api_key: process.env.EXPO_PUBLIC_API_KEY },
+        });
+
+        setData((t) => [...t, ...results.data.casts]);
+        setCursor(results.data?.next?.cursor);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getCasts();
+  }, [counter, setCounter, setData, setCursor]);
+
   return (
     <>
       <StatusBar
@@ -47,11 +86,15 @@ export default function Casts({ navigation }) {
         animated={false}
       />
       <FlatList
-        onEndReached={({ distanceFromEnd }) => {
-          console.log(distanceFromEnd);
+        refreshControl={<RefreshControl refreshing={loading} />}
+        onEndReached={() => {
+          if (loading) {
+            return;
+          }
+          setCounter((t) => t + 1);
         }}
-        data={["amen", "halelujah"]}
-        renderItem={(d) => <CastListItem />}
+        data={data}
+        renderItem={(d) => <CastListItem data={d.item} />}
         contentContainerStyle={[sharedContainerStyles.container]}
       />
     </>

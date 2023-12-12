@@ -14,6 +14,7 @@ import {
   getPoaps,
   getGqlQuery,
   AIRSTACK_URL,
+  removeDuplicates,
 } from "../utils/sharedStyles";
 import { memo, useEffect, useState } from "react";
 import axios from "axios";
@@ -49,13 +50,15 @@ export default function Search({ navigation }) {
 
       let tempArray = [
         ...(ercData.data?.data?.Tokens?.Token || []).filter(
-          (t) => t?.logo?.medium && t?.name
+          (t) => t?.logo?.small && t?.name
         ),
         ...(poapsData?.data?.data?.Poaps?.Poap || []).filter(
-          (t) => t?.poapEvent?.contentValue?.image?.medium
+          (t) => t?.poapEvent?.contentValue?.image?.small
         ),
       ];
-      setTokens((t: Token) => [...t, ...shuffleArray(tempArray)]);
+      setTokens((t: Token) =>
+        removeDuplicates([...t, ...shuffleArray(tempArray)])
+      );
       setCursor((s) => ({
         ...s,
         erc721: ercData.data.data.Tokens.pageInfo.nextCursor,
@@ -132,8 +135,8 @@ function SearchItem({ item, navigation }: { item: Token[0]; navigation: any }) {
         ]}
         source={{
           uri: (item.poapEvent
-            ? item?.poapEvent?.contentValue?.image?.medium
-            : item?.logo?.medium) as string,
+            ? item?.poapEvent?.contentValue?.image?.small
+            : item?.logo?.small) as string,
         }}
         placeholder={blurhash}
         contentFit="cover"

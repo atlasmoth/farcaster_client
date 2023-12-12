@@ -241,3 +241,18 @@ export function cleanHashtag(input: string) {
 }
 
 export type Token = (Poap & Erc721)[];
+
+export function removeDuplicates(arr) {
+  const seen = new Set();
+  const filteredArr = [];
+
+  for (let obj of arr) {
+    const id = obj.address || obj.eventId;
+    if (!seen.has(id)) {
+      seen.add(id);
+      filteredArr.push(obj);
+    }
+  }
+
+  return filteredArr;
+}

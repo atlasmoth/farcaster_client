@@ -1,5 +1,11 @@
 import * as React from "react";
-import { FlatList, StatusBar, TouchableOpacity, Text } from "react-native";
+import {
+  FlatList,
+  StatusBar,
+  TouchableOpacity,
+  Text,
+  RefreshControl,
+} from "react-native";
 import CastListItem from "./CastListItem";
 import {
   AIRSTACK_URL,
@@ -11,12 +17,18 @@ import {
 } from "../utils/sharedStyles";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
+import { Cast } from "./castTypes";
 
 export default function UserCasts({ navigation }) {
   const { index, routes } = navigation.getState();
+  const [loading, setLoading] = React.useState(true);
+
   const stateItems = routes[index].params;
   const [farcasterIds, setFarcasterIds] = React.useState<string[]>([]);
-  console.log(farcasterIds);
+  const [data, setData] = React.useState<Cast[]>([]);
+  const [counter, setCounter] = React.useState(0);
+  const [cursor, setCursor] = React.useState();
+
   React.useEffect(() => {
     navigation.setOptions({ title: `#${cleanHashtag(stateItems.title)}` });
     const getData = async () => {
@@ -59,6 +71,34 @@ export default function UserCasts({ navigation }) {
     };
     getData();
   }, [navigation]);
+  React.useEffect(() => {
+    const getCasts = async () => {
+      try {
+        if (farcasterIds.length < 1) return;
+        setLoading(true);
+        const neynarUrl = new URL(`https://api.neynar.com/v2/farcaster/feed`);
+        neynarUrl.searchParams.append("feed_type", "filter");
+        neynarUrl.searchParams.append("filter_type", "fids");
+        neynarUrl.searchParams.append("with_recasts", "true");
+        neynarUrl.searchParams.append("limit", "100");
+        neynarUrl.searchParams.append("fids", farcasterIds.join(","));
+        if (cursor) {
+          neynarUrl.searchParams.append("cursor", cursor as string);
+        }
+        const results = await axios.get(neynarUrl.href, {
+          headers: { Api_key: process.env.EXPO_PUBLIC_API_KEY },
+        });
+        setData((t) => [...t, ...results.data.casts]);
+        setCursor(results.data?.next?.cursor);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getCasts();
+  }, [farcasterIds, counter, setCounter, setData, setCursor]);
+
   return (
     <>
       <StatusBar
@@ -67,11 +107,15 @@ export default function UserCasts({ navigation }) {
         animated={false}
       />
       <FlatList
+        refreshControl={<RefreshControl refreshing={loading} />}
         onEndReached={({ distanceFromEnd }) => {
-          console.log(distanceFromEnd);
+          if (loading) {
+            return;
+          }
+          setCounter((t) => t + 1);
         }}
-        data={["amen", "halelujah"]}
-        renderItem={(d) => <CastListItem />}
+        data={data}
+        renderItem={(d) => <CastListItem data={d.item} />}
         contentContainerStyle={[sharedContainerStyles.container]}
       />
     </>
