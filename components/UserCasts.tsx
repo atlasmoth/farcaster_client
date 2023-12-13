@@ -1,11 +1,5 @@
 import * as React from "react";
-import {
-  FlatList,
-  StatusBar,
-  TouchableOpacity,
-  Text,
-  RefreshControl,
-} from "react-native";
+import { FlatList, StatusBar, View, Text, RefreshControl } from "react-native";
 import { CastListItem } from "./CastListItem";
 import {
   AIRSTACK_URL,
@@ -15,7 +9,7 @@ import {
   getPoapUsers,
   sharedContainerStyles,
 } from "../utils/sharedStyles";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { Cast } from "./castTypes";
 
@@ -64,7 +58,11 @@ export default function UserCasts({ navigation }) {
                 (address, index, array) => array.indexOf(address) === index
               ) ?? [];
         }
-        setFarcasterIds([...new Set(fids.map((a) => a.userId))]);
+        const tempIds = [...new Set(fids.map((a) => a.userId))];
+        setFarcasterIds(tempIds);
+        if (tempIds.length === 0) {
+          setCursor(null);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -75,6 +73,7 @@ export default function UserCasts({ navigation }) {
     const getCasts = async () => {
       try {
         if (farcasterIds.length < 1) return;
+        if (cursor === null) return;
         setLoading(true);
         const neynarUrl = new URL(`https://api.neynar.com/v2/farcaster/feed`);
         neynarUrl.searchParams.append("feed_type", "filter");
@@ -102,6 +101,40 @@ export default function UserCasts({ navigation }) {
   const FlatItem = React.useCallback(({ item }) => {
     return <CastListItem data={item} />;
   }, []);
+  if (!loading && cursor === null && data.length === 0) {
+    return (
+      <View
+        style={[
+          sharedContainerStyles.container,
+          {
+            alignItems: "center",
+            paddingHorizontal: 12,
+            paddingTop: 50,
+          },
+        ]}
+      >
+        <MaterialCommunityIcons
+          name="timer-sand-empty"
+          size={40}
+          color={colors.grey}
+        />
+        <Text
+          style={[
+            {
+              marginTop: 10,
+              color: colors.black,
+              fontSize: 16,
+              lineHeight: 24,
+              fontWeight: "600",
+              fontFamily: "Chirp_Bold",
+            },
+          ]}
+        >
+          No casts available
+        </Text>
+      </View>
+    );
+  }
   return (
     <>
       <StatusBar

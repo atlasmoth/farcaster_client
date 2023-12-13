@@ -54,7 +54,10 @@ export default function Casts({ navigation }) {
   React.useEffect(() => {
     const getCasts = async () => {
       try {
+        console.log(cursor);
+        if (cursor === null) return;
         setLoading(true);
+
         const neynarUrl = new URL(`https://api.neynar.com/v2/farcaster/feed`);
         neynarUrl.searchParams.append("feed_type", "filter");
         neynarUrl.searchParams.append("filter_type", "global_trending");

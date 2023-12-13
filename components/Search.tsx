@@ -37,32 +37,43 @@ export default function Search({ navigation }) {
   useEffect(() => {
     const getDataFunc = async () => {
       setLoading(true);
-      const ercData = await axios.post(
-        AIRSTACK_URL,
-        getGqlQuery({
-          erc721Cursor: cursor.erc721,
-        })
-      );
-      const poapsData = await axios.post(
-        AIRSTACK_URL,
-        getPoaps({ cursor: cursor.poap })
-      );
+      let tempArray = [];
+      const tempCursor: any = {};
 
-      let tempArray = [
-        ...(ercData.data?.data?.Tokens?.Token || []).filter(
-          (t) => t?.logo?.small && t?.name
-        ),
-        ...(poapsData?.data?.data?.Poaps?.Poap || []).filter(
-          (t) => t?.poapEvent?.contentValue?.image?.small
-        ),
-      ];
+      if (cursor.erc721 !== null) {
+        const ercData = await axios.post(
+          AIRSTACK_URL,
+          getGqlQuery({
+            erc721Cursor: cursor.erc721,
+          })
+        );
+        tempArray = tempArray.concat(
+          (ercData.data?.data?.Tokens?.Token || []).filter(
+            (t) => t?.logo?.small && t?.name
+          )
+        );
+        tempCursor.erc721 = ercData.data.data.Tokens.pageInfo.nextCursor;
+      }
+
+      if (cursor.poap !== null) {
+        const poapsData = await axios.post(
+          AIRSTACK_URL,
+          getPoaps({ cursor: cursor.poap })
+        );
+        tempArray = tempArray.concat(
+          (poapsData?.data?.data?.Poaps?.Poap || []).filter(
+            (t) => t?.poapEvent?.contentValue?.image?.small
+          )
+        );
+        tempCursor.poap = poapsData.data.data.Poaps.pageInfo.nextCursor;
+      }
+
       setTokens((t: Token) =>
         removeDuplicates([...t, ...shuffleArray(tempArray)])
       );
       setCursor((s) => ({
         ...s,
-        erc721: ercData.data.data.Tokens.pageInfo.nextCursor,
-        poap: poapsData.data.data.Poaps.pageInfo.nextCursor,
+        ...tempCursor,
       }));
     };
     getDataFunc()
