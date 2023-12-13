@@ -67,7 +67,6 @@ export default function Search({ navigation }) {
             (t) => t?.poapEvent?.contentValue?.image?.small
           )
         );
-        console.log(tempArray.length);
         tempCursor.poap = poapsData.data.data.Poaps.pageInfo.nextCursor;
       }
 
