@@ -47,11 +47,13 @@ export default function Search({ navigation }) {
             erc721Cursor: cursor.erc721,
           })
         );
+
         tempArray = tempArray.concat(
           (ercData.data?.data?.Tokens?.Token || []).filter(
             (t) => t?.logo?.small && t?.name
           )
         );
+
         tempCursor.erc721 = ercData.data.data.Tokens.pageInfo.nextCursor;
       }
 
@@ -65,6 +67,7 @@ export default function Search({ navigation }) {
             (t) => t?.poapEvent?.contentValue?.image?.small
           )
         );
+        console.log(tempArray.length);
         tempCursor.poap = poapsData.data.data.Poaps.pageInfo.nextCursor;
       }
 

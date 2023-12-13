@@ -106,7 +106,7 @@ export function getGqlQuery({ erc721Cursor }: { erc721Cursor?: string }) {
           id
           isSpam
           logo {
-            medium
+            small
           }
           name
         }
