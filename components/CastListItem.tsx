@@ -1,4 +1,10 @@
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Linking,
+} from "react-native";
 import { colors } from "./../utils/sharedStyles";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
@@ -114,9 +120,58 @@ function NoMemoCastListItem({ data }: { data: Cast }) {
               },
             ]}
           >
-            {data.text}
+            {/* {data.text} */}
+            {data.text
+              .replaceAll("\n", " ")
+              .split(" ")
+              .map((t, index) => {
+                if (
+                  (t.length > 0 && t.startsWith("@")) ||
+                  t.startsWith("http")
+                ) {
+                  return (
+                    <Text
+                      onPress={() => {
+                        Linking.openURL(
+                          t.startsWith("@")
+                            ? `https://warpcast.com/${t.slice(1)}`
+                            : t
+                        ).catch(console.log);
+                      }}
+                      key={index}
+                      style={[
+                        {
+                          color: "#0D78F2",
+                          fontWeight: "600",
+                        },
+                      ]}
+                    >
+                      {t}{" "}
+                    </Text>
+                  );
+                }
+
+                return <Text key={index}>{t} </Text>;
+              })}
           </Text>
-          <Gallery urls={data.embeds || []} />
+          <Gallery
+            urls={(data.embeds || []).filter((d) => {
+              const lowerCaseUrl = d.url.toLowerCase().trim();
+
+              let urlBool = false;
+              urlBool = lowerCaseUrl.endsWith("png");
+              if (!urlBool) {
+                urlBool = lowerCaseUrl.endsWith("jpg");
+              }
+              if (!urlBool) {
+                urlBool = lowerCaseUrl.endsWith("jpeg");
+              }
+              if (!urlBool) {
+                urlBool = lowerCaseUrl.endsWith("svg");
+              }
+              return urlBool;
+            })}
+          />
         </View>
       </View>
       <View style={[castListItemStyles.flexRow]}>
@@ -259,13 +314,62 @@ function NoMemoMainListItem({ data }: { data: Cast }) {
                 color: colors.black,
                 fontSize: 14,
                 lineHeight: 20,
-                fontWeight: "500",
+                justifyContent: "center",
               },
             ]}
           >
-            {data.text}
+            {/* {data.text} */}
+            {data.text
+              .replaceAll("\n", " ")
+              .split(" ")
+              .map((t, index) => {
+                if (
+                  (t.length > 0 && t.startsWith("@")) ||
+                  t.startsWith("http")
+                ) {
+                  return (
+                    <Text
+                      onPress={() => {
+                        Linking.openURL(
+                          t.startsWith("@")
+                            ? `https://warpcast.com/${t.slice(1)}`
+                            : t
+                        ).catch(console.log);
+                      }}
+                      key={index}
+                      style={[
+                        {
+                          color: "#0D78F2",
+                          fontWeight: "600",
+                        },
+                      ]}
+                    >
+                      {t}{" "}
+                    </Text>
+                  );
+                }
+
+                return <Text key={index}>{t} </Text>;
+              })}
           </Text>
-          <Gallery urls={data.embeds} />
+          <Gallery
+            urls={data.embeds.filter((d) => {
+              const lowerCaseUrl = d.url.toLowerCase().trim();
+
+              let urlBool = false;
+              urlBool = lowerCaseUrl.endsWith("png");
+              if (!urlBool) {
+                urlBool = lowerCaseUrl.endsWith("jpg");
+              }
+              if (!urlBool) {
+                urlBool = lowerCaseUrl.endsWith("jpeg");
+              }
+              if (!urlBool) {
+                urlBool = lowerCaseUrl.endsWith("svg");
+              }
+              return urlBool;
+            })}
+          />
         </View>
       </View>
       <View style={[castListItemStyles.flexRow]}>
@@ -398,9 +502,61 @@ function NoMemoReplyListItem({ data }: { data: Record<any, any> }) {
               },
             ]}
           >
-            {data.text}
+            {/* {data.text} */}
+            {data.text
+              .replaceAll("\n", " ")
+              .split(" ")
+              .map((t, index) => {
+                if (
+                  (t.length > 0 && t.startsWith("@")) ||
+                  t.startsWith("http")
+                ) {
+                  return (
+                    <Text
+                      onPress={() => {
+                        Linking.openURL(
+                          t.startsWith("@")
+                            ? `https://warpcast.com/${t.slice(1)}`
+                            : t
+                        ).catch(console.log);
+                      }}
+                      key={index}
+                      style={[
+                        {
+                          color: "#0D78F2",
+                          fontWeight: "600",
+                        },
+                      ]}
+                    >
+                      {t}{" "}
+                    </Text>
+                  );
+                }
+
+                return <Text key={index}>{t} </Text>;
+              })}
           </Text>
-          <Gallery urls={data.embeds || []} />
+          <Gallery
+            urls={
+              data.embeds ||
+              [].filter((d) => {
+                const lowerCaseUrl = d.url.toLowerCase().trim();
+
+                let urlBool = false;
+                urlBool = lowerCaseUrl.endsWith("png");
+                if (!urlBool) {
+                  urlBool = lowerCaseUrl.endsWith("jpg");
+                }
+                if (!urlBool) {
+                  urlBool = lowerCaseUrl.endsWith("jpeg");
+                }
+                if (!urlBool) {
+                  urlBool = lowerCaseUrl.endsWith("svg");
+                }
+                return urlBool;
+              })
+            }
+          />
           <View style={[castListItemStyles.flexRow, { flex: 1 }]}>
             <Feather name="message-circle" size={20} color={colors.grey} />
             <Text style={[castListItemStyles.lightSubText, { marginLeft: 3 }]}>
