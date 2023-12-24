@@ -156,7 +156,7 @@ function NoMemoCastListItem({ data }: { data: Cast }) {
           </Text>
           <Gallery
             urls={(data.embeds || []).filter((d) => {
-              const lowerCaseUrl = d.url.toLowerCase().trim();
+              const lowerCaseUrl = d?.url?.toLowerCase()?.trim() || "";
 
               let urlBool = false;
               urlBool = lowerCaseUrl.endsWith("png");
@@ -354,7 +354,7 @@ function NoMemoMainListItem({ data }: { data: Cast }) {
           </Text>
           <Gallery
             urls={data.embeds.filter((d) => {
-              const lowerCaseUrl = d.url.toLowerCase().trim();
+              const lowerCaseUrl = d?.url?.toLowerCase()?.trim() || "";
 
               let urlBool = false;
               urlBool = lowerCaseUrl.endsWith("png");
@@ -540,7 +540,7 @@ function NoMemoReplyListItem({ data }: { data: Record<any, any> }) {
             urls={
               data.embeds ||
               [].filter((d) => {
-                const lowerCaseUrl = d.url.toLowerCase().trim();
+                const lowerCaseUrl = d?.url?.toLowerCase()?.trim() || "";
 
                 let urlBool = false;
                 urlBool = lowerCaseUrl.endsWith("png");
