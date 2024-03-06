@@ -50,7 +50,7 @@ function NoMemoCastListItem({ data }: { data: Cast }) {
                 {
                   marginTop: 10,
                   marginBottom: 10,
-                  backgroundColor: "rgb(229,229,229)",
+                  backgroundColor: "rgba(229,229,229,0.4)",
                   width: 2,
                   flexGrow: 1,
                 },
@@ -74,7 +74,7 @@ function NoMemoCastListItem({ data }: { data: Cast }) {
                     fontFamily: "Chirp_Bold",
                     fontSize: 16,
                     lineHeight: 24,
-                    color: colors.black,
+                    color: colors.bgWhite,
                   },
                 ]}
               >
@@ -113,7 +113,7 @@ function NoMemoCastListItem({ data }: { data: Cast }) {
               {
                 marginBottom: 10,
                 fontFamily: "Chirp_Regular",
-                color: colors.black,
+                color: colors.bgWhite,
                 fontSize: 14,
                 lineHeight: 20,
                 fontWeight: "500",
@@ -268,7 +268,7 @@ function NoMemoMainListItem({ data }: { data: Cast }) {
                     fontFamily: "Chirp_Bold",
                     fontSize: 16,
                     lineHeight: 24,
-                    color: colors.black,
+                    color: colors.bgWhite,
                   },
                 ]}
               >
@@ -311,7 +311,7 @@ function NoMemoMainListItem({ data }: { data: Cast }) {
               {
                 marginBottom: 10,
                 fontFamily: "Chirp_Regular",
-                color: colors.black,
+                color: colors.bgWhite,
                 fontSize: 14,
                 lineHeight: 20,
                 justifyContent: "center",
@@ -453,7 +453,7 @@ function NoMemoReplyListItem({ data }: { data: Record<any, any> }) {
                     fontFamily: "Chirp_Bold",
                     fontSize: 16,
                     lineHeight: 24,
-                    color: colors.black,
+                    color: colors.bgWhite,
                   },
                 ]}
               >
@@ -496,7 +496,7 @@ function NoMemoReplyListItem({ data }: { data: Record<any, any> }) {
               {
                 marginBottom: 10,
                 fontFamily: "Chirp_Regular",
-                color: colors.black,
+                color: colors.bgWhite,
                 fontSize: 14,
                 lineHeight: 20,
               },
@@ -659,7 +659,7 @@ const castListItemStyles = StyleSheet.create({
   galleryItem: {
     flexBasis: "47%",
     borderRadius: 15,
-    minHeight: 120,
+    minHeight: 140,
     flex: 1,
     objectFit: "cover",
     overflow: "hidden",

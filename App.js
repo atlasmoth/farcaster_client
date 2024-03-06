@@ -4,9 +4,11 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useFonts } from "expo-font";
 import Caster from "./screens/Cast";
 import { colors } from "./utils/sharedStyles";
-import Casts from "./components/Casts";
 import Search from "./components/Search";
 import UserCasts from "./components/UserCasts";
+import MainTab from "./screens/Main";
+import { StatusBar } from "expo-status-bar";
+import DexscreenerWebview from "./components/DexscreenerWebview";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,58 +22,82 @@ export default function App() {
     return null;
   }
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Trending 📡"
-          component={Casts}
-          options={{
-            headerTitleStyle: {
-              color: colors.black,
-              fontFamily: "Chirp_Bold",
-              fontSize: 16,
-              lineHeight: 20,
-            },
-          }}
-        />
-        <Stack.Screen
-          name="Cast 🔊"
-          component={Caster}
-          options={{
-            headerTitleStyle: {
-              color: colors.black,
-              fontFamily: "Chirp_Bold",
-              fontSize: 16,
-              lineHeight: 20,
-            },
-          }}
-        />
-        <Stack.Screen
-          name="UserCasts"
-          component={UserCasts}
-          options={{
-            headerTitleStyle: {
-              color: colors.black,
-              fontFamily: "Chirp_Bold",
-              fontSize: 16,
-              lineHeight: 20,
-            },
-          }}
-        />
-        <Stack.Screen
-          name="Search"
-          component={Search}
-          options={{
-            headerTitle: "Select NFT or POAP",
-            headerTitleStyle: {
-              color: colors.black,
-              fontFamily: "Chirp_Bold",
-              fontSize: 16,
-              lineHeight: 20,
-            },
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <>
+      <StatusBar
+        style="dark"
+        barStyle="dark-content"
+        backgroundColor={colors.black}
+        animated={true}
+      />
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Casts"
+            component={MainTab}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Cast 🔊"
+            component={Caster}
+            options={{
+              headerTitleStyle: {
+                color: colors.bgWhite,
+                fontFamily: "Chirp_Bold",
+                fontSize: 16,
+                lineHeight: 20,
+              },
+              headerTitleAlign: "left",
+              headerStyle: {
+                backgroundColor: "#000",
+                backgroundColor: "#000",
+                elevation: 0,
+                shadowOpacity: 0,
+                borderBottomWidth: 0,
+              },
+            }}
+          />
+          <Stack.Screen
+            name="UserCasts"
+            component={UserCasts}
+            options={{
+              headerTitleStyle: {
+                color: colors.bgWhite,
+                fontFamily: "Chirp_Bold",
+                fontSize: 16,
+                lineHeight: 20,
+              },
+              headerTitleAlign: "left",
+              headerTitle: "Channel",
+              headerStyle: {
+                backgroundColor: "#000",
+                elevation: 0,
+                shadowOpacity: 0,
+                borderBottomWidth: 0,
+              },
+            }}
+          />
+          <Stack.Screen
+            name="DexscreenerWebview"
+            component={DexscreenerWebview}
+            options={{
+              headerTitleStyle: {
+                color: colors.bgWhite,
+                fontFamily: "Chirp_Bold",
+                fontSize: 16,
+                lineHeight: 20,
+              },
+              headerTitleAlign: "left",
+              headerTitle: "Token",
+              headerStyle: {
+                backgroundColor: "#000",
+                elevation: 0,
+                shadowOpacity: 0,
+                borderBottomWidth: 0,
+              },
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
   );
 }

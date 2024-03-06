@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 
 export const colors = {
   bgWhite: "#fff",
-  grey: "rgb(153, 153, 153);",
+  grey: "rgba(153, 153, 153,0.6);",
   black: "#000",
   bgWhiteTransparent: "rgba(0, 0, 0, 0.15)",
   blue: "#0C66CD",
@@ -11,7 +11,7 @@ export const colors = {
 export const sharedContainerStyles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: colors.bgWhite,
+    backgroundColor: colors.black,
     paddingBottom: 20,
   },
 });
