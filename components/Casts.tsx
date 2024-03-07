@@ -5,10 +5,11 @@ import {
   TouchableOpacity,
   Text,
   RefreshControl,
+  View,
 } from "react-native";
 import { CastListItem } from "./CastListItem";
 import { colors, sharedContainerStyles } from "../utils/sharedStyles";
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import { Cast } from "./castTypes";
 import axios from "axios";
 
@@ -2774,7 +2775,7 @@ export default function Casts({ navigation }) {
     return <CastListItem data={item} />;
   }, []);
   return (
-    <>
+    <View style={[{ position: "relative" }]}>
       <FlatList
         keyExtractor={(item) => item.hash}
         refreshControl={<RefreshControl refreshing={loading} />}
@@ -2788,6 +2789,25 @@ export default function Casts({ navigation }) {
         renderItem={FlatItem}
         contentContainerStyle={[sharedContainerStyles.container]}
       />
-    </>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate("Cast");
+        }}
+        style={[
+          {
+            backgroundColor: colors.bgWhite,
+            width: 50,
+            height: 50,
+            bottom: 120,
+            left: "80%",
+            borderRadius: 60,
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        ]}
+      >
+        <Entypo name="pencil" size={24} color="black" />
+      </TouchableOpacity>
+    </View>
   );
 }

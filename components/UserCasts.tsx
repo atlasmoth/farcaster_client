@@ -23,7 +23,7 @@ import axios from "axios";
 import { Cast } from "./castTypes";
 import { blurhash } from "./CastListItem";
 import { Image } from "expo-image";
-import { Feather, FontAwesome } from "@expo/vector-icons";
+import { Feather, FontAwesome, Entypo } from "@expo/vector-icons";
 import { VictoryArea } from "victory-native";
 
 export default function UserCasts({ navigation }) {
@@ -3131,6 +3131,25 @@ export default function UserCasts({ navigation }) {
         renderItem={FlatItem}
         contentContainerStyle={[sharedContainerStyles.container]}
       />
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate("Cast");
+        }}
+        style={[
+          {
+            backgroundColor: colors.bgWhite,
+            width: 50,
+            height: 50,
+            bottom: 120,
+            left: "80%",
+            borderRadius: 60,
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        ]}
+      >
+        <Entypo name="pencil" size={24} color="black" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }

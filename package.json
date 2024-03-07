@@ -31,7 +31,10 @@
     "react-native-web": "~0.19.6",
     "react-native-webview": "13.2.2",
     "typescript": "^5.1.3",
-    "victory-native": "^36.6.8"
+    "victory-native": "^36.6.8",
+    "react-hook-form": "^7.43.8",
+    "react-native-actions-sheet": "^0.8.29",
+    "expo-document-picker": "~11.5.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
